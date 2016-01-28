@@ -65,15 +65,11 @@ struct Request getRequest(int pSocket) {
 	stringstream st;
 	st.str(line);
 	st >> request.method >> request.path >> request.version;
-	cout << "request.method: " << request.method << endl;
-	cout << "request.path: " << request.path << endl;
-	cout << "request.version: " << request.version << endl;
 	return request;
 }
 
 void respond(int pSocket, string version, string path, string reqPath) {
 	struct stat filestat;
-	cout << "path: " << path << endl;
 	if(stat(path, filestat) == ERROR) {
 		writeLine(pSocket, version + " 404 NOT FOUND");
 		writeLine(pSocket, "Content-Type: text/html");
@@ -83,7 +79,6 @@ void respond(int pSocket, string version, string path, string reqPath) {
 		writeLine(pSocket);
 		write(pSocket, body);
 	} else if(S_ISREG(filestat.st_mode)) {
-		cout << "\nIS REG!!!\n";
 		writeLine(pSocket, version + " 200 OK");
 		writeLine(pSocket, "Content-Type: " + getContentType(path));
 		string contentLength = to_string(filestat.st_size);
@@ -96,7 +91,6 @@ void respond(int pSocket, string version, string path, string reqPath) {
 		struct stat indexStat;
 		string indexPath = joinPath(path, "index.html");
 		if(stat(indexPath, indexStat) == ERROR) {
-			cout << "\nPRINT DIR!!!\n";
 			string body = getDirectory(path, reqPath);
 			writeLine(pSocket, "Content-Length: " + to_string(body.length()));
 			writeLine(pSocket);
@@ -145,7 +139,7 @@ void write(int pSocket, string msg) {
 }
 
 string get404() {
-	return "<!DOCTYPE html><html><head></head><body>Sorry, braw, could find that for ya.</body></html>";
+	return "<!DOCTYPE html><html><head></head><body>Sorry, braw, couldn't find that for ya.</body></html>";
 }
 
 string getDirectory(string path, string reqPath) {
