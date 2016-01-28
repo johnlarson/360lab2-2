@@ -81,6 +81,14 @@ void respond(int pSocket, string version, string path) {
 		writeLine(pSocket, "Content-Length: " + contentLength);
 		writeLine(pSocket);
 		write(pSocket, body);
+	} else if(S_ISREG(filestat.st_mode)) {
+		cout << "\nIS REG!!!\n";
+		writeLine(pSocket, version + " 200 OK");
+		writeLine(pSocket, "Content-Type: " + getContentType(path));
+		string contentLength = to_string(filestat.st_size);
+		writeLine(pSocket, "Content-Length: " + contentLength);
+		writeLine(pSocket);
+		writeFile(pSocket, path);
 	}
 }
 

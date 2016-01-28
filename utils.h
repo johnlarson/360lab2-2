@@ -14,7 +14,7 @@ using namespace std;
 
 void errorOut(string msg);
 
-int stat(string directory, struct stat filestat);
+int stat(string directory, struct stat &filestat);
 
 static inline int isWhitespace(char c);
 

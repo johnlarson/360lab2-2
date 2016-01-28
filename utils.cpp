@@ -2,7 +2,7 @@
 
 #define MAX_MSG_SZ 1024
 
-int stat(string path, struct stat filestat) {
+int stat(string path, struct stat &filestat) {
 	return stat(path.c_str(), &filestat);
 }
 
