@@ -1,14 +1,10 @@
 #ifndef UTILS_H
 #define UTILS_H
 
-#include <stdlib.h>
 #include <unistd.h>
-#include <stdio.h>
 #include <sys/stat.h>
 #include <string.h>
-#include <fcntl.h>
 #include <string>
-#include "utils.h"
 
 using namespace std;
 
