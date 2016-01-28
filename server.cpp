@@ -11,10 +11,11 @@ struct Request {
 
 void setUpServerSocket(int &sSocket, struct sockaddr_in &address, int port);
 struct Request getRequest(int pSocket);
-void respond(int pSocket, string version, string path);
+void respond(int pSocket, string version, string path, string reqPath);
 string getContentType(string path);
 string joinPath(string parent, string child);
 string get404();
+string getDirectory(string path, string fullPath);
 void write(int pSocket, string msg);
 void writeLine(int pSocket, string msg);
 void writeLine(int pSocket);
@@ -29,7 +30,7 @@ void runServer(int port, string root) {
 		int pSocket = accept(sSocket, (struct sockaddr*)&address, (socklen_t*)&addressSize);
 		struct Request request = getRequest(pSocket);
 		string path = joinPath(root, request.path);
-		respond(pSocket, request.version, path);
+		respond(pSocket, request.version, path, request.path);
 		if(close(pSocket) == ERROR) {
 			errorOut("Couldn't close message socket");
 		}
@@ -70,7 +71,7 @@ struct Request getRequest(int pSocket) {
 	return request;
 }
 
-void respond(int pSocket, string version, string path) {
+void respond(int pSocket, string version, string path, string reqPath) {
 	struct stat filestat;
 	cout << "path: " << path << endl;
 	if(stat(path, filestat) == ERROR) {
@@ -89,6 +90,20 @@ void respond(int pSocket, string version, string path) {
 		writeLine(pSocket, "Content-Length: " + contentLength);
 		writeLine(pSocket);
 		writeFile(pSocket, path);
+	} else if(S_ISDIR(filestat.st_mode)) {
+		writeLine(pSocket, version + " 200 OK");
+		writeLine(pSocket, "Content-Type: text/html");
+		struct stat indexStat;
+		string indexPath = joinPath(path, "index.html");
+		if(stat(indexPath, indexStat) == ERROR) {
+			cout << "\nPRINT DIR!!!\n";
+			string body = getDirectory(path, reqPath);
+			writeLine(pSocket, "Content-Length: " + to_string(body.length()));
+			writeLine(pSocket);
+			write(pSocket, body);
+		} else {
+			
+		}
 	}
 }
 
@@ -129,6 +144,25 @@ void write(int pSocket, string msg) {
 
 string get404() {
 	return "<!DOCTYPE html><html><head></head><body>Sorry, braw, could find that for ya.</body></html>";
+}
+
+string getDirectory(string path, string reqPath) {
+	DIR* dirp;
+	struct dirent *dp;
+	string start = "<!DOCTYPE html><html><head></head><body>";
+	string chunkStart = "<a href='";
+	string chunkMiddle = "'>";
+	string chunkEnd = "</a></br>";
+	string end = "</body></html>";
+	dirp = opendir(path.c_str());
+	string result = start;
+	while((dp = readdir(dirp)) != NULL) {
+		string itemReqPath = joinPath(reqPath, string(dp->d_name));
+		result += chunkStart + itemReqPath + chunkMiddle + string(dp->d_name) + chunkEnd;
+	}
+	(void)closedir(dirp);
+	result += end;
+	return result;
 }
 
 void writeFile(int pSocket, string path) {

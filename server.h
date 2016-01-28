@@ -3,6 +3,7 @@
 
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <dirent.h>
 #include <string>
 #include <iostream>
 #include <sstream>
