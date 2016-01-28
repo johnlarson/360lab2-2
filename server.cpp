@@ -102,7 +102,9 @@ void respond(int pSocket, string version, string path, string reqPath) {
 			writeLine(pSocket);
 			write(pSocket, body);
 		} else {
-			
+			writeLine(pSocket, "Content-Length: " + to_string(indexStat.st_size));
+			writeLine(pSocket);
+			writeFile(pSocket, indexPath);
 		}
 	}
 }
