@@ -28,9 +28,15 @@ void runServer(int port, string root) {
 	int addressSize = sizeof(struct sockaddr_in);
 	while(1) {
 		int pSocket = accept(sSocket, (struct sockaddr*)&address, (socklen_t*)&addressSize);
+		linger lin;
+		unsigned int y=sizeof(lin);
+		lin.l_onoff=1;
+		lin.l_linger=10;
+		setsockopt(pSocket,SOL_SOCKET, SO_LINGER,&lin,sizeof(lin));
 		struct Request request = getRequest(pSocket);
 		string path = joinPath(root, request.path);
 		respond(pSocket, request.version, path, request.path);
+		shutdown(pSocket, SHUT_RDWR);
 		if(close(pSocket) == ERROR) {
 			errorOut("Couldn't close message socket");
 		}
