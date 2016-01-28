@@ -18,6 +18,7 @@ string get404();
 void write(int pSocket, string msg);
 void writeLine(int pSocket, string msg);
 void writeLine(int pSocket);
+void writeFile(int pSocket, string path);
 
 void runServer(int port, string root) {
 	int sSocket;
@@ -84,7 +85,9 @@ void respond(int pSocket, string version, string path) {
 		writeLine(pSocket, version + " 200 OK");
 		writeLine(pSocket, "Content-Type: " + getContentType(path));
 		string contentLength = to_string(filestat.st_size);
-		
+		writeLine(pSocket, "Content-Length: " + contentLength);
+		writeLine(pSocket);
+		writeFile(pSocket, path);
 	}
 		
 }
@@ -126,4 +129,15 @@ void write(int pSocket, string msg) {
 
 string get404() {
 	return "<!DOCTYPE html><html><head></head><body>Sorry, braw, could find that for ya.</body></html>";
+}
+
+void writeFile(int pSocket, string path) {
+	struct stat filestat;
+	if(stat(path, filestat) == ERROR) return;
+	int size = filestat.st_size;
+	FILE* fp = fopen(path.c_str(), "rb");
+	char buffer[size];
+	fread(buffer, size, 1, fp);
+	fclose(fp);
+	write(pSocket, buffer, size);
 }
