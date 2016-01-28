@@ -72,7 +72,7 @@ struct Request getRequest(int pSocket) {
 
 void respond(int pSocket, string version, string path) {
 	struct stat filestat;
-	//string contentType = getContentType(path);
+	cout << "path: " << path << endl;
 	if(stat(path, filestat) == ERROR) {
 		writeLine(pSocket, version + " 404 NOT FOUND");
 		writeLine(pSocket, "Content-Type: text/html");
@@ -82,12 +82,17 @@ void respond(int pSocket, string version, string path) {
 		writeLine(pSocket);
 		write(pSocket, body);
 	} else if(S_ISREG(filestat.st_mode)) {
-		writeLine(pSocket, version + " 200 OK");
-		writeLine(pSocket, "Content-Type: " + getContentType(path));
-		string contentLength = to_string(filestat.st_size);
-		writeLine(pSocket, "Content-Length: " + contentLength);
-		writeLine(pSocket);
-		writeFile(pSocket, path);
+		cout << "\nYEAH!\n";
+		//writeLine(pSocket, version + " 200 OK");
+		//writeLine(pSocket, "Content-Type: " + getContentType(path));
+		//string contentLength = to_string(filestat.st_size);
+		//writeLine(pSocket, "Content-Length: " + contentLength);
+		//writeLine(pSocket);
+		//writeFile(pSocket, path);
+	} else if(S_ISDIR(filestat.st_mode)) {
+		cout << "\niz deer\n";
+	} else {
+		cout << "\nWhut?\n";
 	}
 		
 }
